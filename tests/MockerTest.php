@@ -92,6 +92,70 @@ class MockerTest extends PHPUnit_Framework_TestCase {
 		$this->setExpectedException('Exception');
 		$mock->checkExpectations();
 	}
+	
+	function testCanSpecifyASequenceOfReturnValues() {
+		$mock = new TestMock;
+
+		$mock->method('incrementor')
+			->withNoArgs()
+				->returns(1)
+				->thenReturns(2)
+				->thenReturns(3)
+				->thenReturns(4);
+				
+		$this->assertEquals(1, $mock->incrementor());
+		$this->assertEquals(2, $mock->incrementor());
+		$this->assertEquals(3, $mock->incrementor());
+		$this->assertEquals(4, $mock->incrementor());
+
+		// After this point, the final value is returned
+		$this->assertEquals(4, $mock->incrementor());
+		$this->assertEquals(4, $mock->incrementor());
+	}	
+
+	function testDefaultReturnValueCanHaveASequence() {
+		$mock = new TestMock;
+
+		$mock->method('incrementor')
+			->returns(1)
+			->thenReturns(2)
+			->thenReturns(3)
+			->thenReturns(4);
+				
+		$this->assertEquals(1, $mock->incrementor());
+		$this->assertEquals(2, $mock->incrementor(2));
+		$this->assertEquals(3, $mock->incrementor("fred"));
+		$this->assertEquals(4, $mock->incrementor());
+
+		// After this point, the final value is returned
+		$this->assertEquals(4, $mock->incrementor(5));
+		$this->assertEquals(4, $mock->incrementor(1));
+	}	
+
+	function testCanHaveTwoIndependentSequences() {
+		$mock = new TestMock;
+
+		$mock->method('incrementor')
+			->withArgs(1)
+				->returns(1)
+				->thenReturns(2)
+				->thenReturns(3)
+				->thenReturns(4)
+			->withArgs("A")
+				->returns("A")
+				->thenReturns("B")
+				->thenReturns("C")
+				->thenReturns("D");
+				
+		$this->assertEquals(1, $mock->incrementor(1));
+		$this->assertEquals("A", $mock->incrementor("A"));
+		$this->assertEquals(2, $mock->incrementor(1));
+		$this->assertEquals("B", $mock->incrementor("A"));
+		$this->assertEquals(3, $mock->incrementor(1));
+		$this->assertEquals("C", $mock->incrementor("A"));
+		$this->assertEquals(4, $mock->incrementor(1));
+		$this->assertEquals("D", $mock->incrementor("A"));
+	}
 }
 
 class TestMock {

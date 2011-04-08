@@ -129,12 +129,23 @@ class SS_Mocker_StubMethod {
 	}
 	
 	/**
+	 * Set a call with no arguments
+	 */
+	function withNoArgs() {
+		return $this->withArgs();
+	}
+	
+	/**
 	 * Set the return value for a method call with any arguments
 	 */
 	function returns($returnValue) {
-		$this->returns['default'] = $returnValue;
+		$this->returns['default'][] = $returnValue;
 
 		return $this;
+	}
+	
+	function thenReturns($returnValue) {
+		return $this->returns($returnValue);
 	}
 	
 	/**
@@ -147,7 +158,8 @@ class SS_Mocker_StubMethod {
 		if(isset($this->arguments[$hash])) {
 			return $this->arguments[$hash]->call();
 		} else if(array_key_exists('default', $this->returns)) {
-			return $this->returns['default'];
+			if(sizeof($this->returns['default']) > 1) { return array_shift($this->returns['default']); }
+			else return $this->returns['default'][0];
 		}
 		
 		// Failure
@@ -211,7 +223,7 @@ class SS_Mocker_StubMethod {
 class SS_Mocker_StubMethod_Arguments {
 	protected $method, $arguments;
 	protected $callCount =  0;
-	protected $return = null;
+	protected $return = array();
 	protected $expected = false;
 	
 	function __construct($arguments, $method = null) {
@@ -223,8 +235,12 @@ class SS_Mocker_StubMethod_Arguments {
 	 * Set the return value for the arugments just defined
 	 */
 	function returns($returnValue) {
-		$this->return = $returnValue;
+		$this->return[] = $returnValue;
 		return $this;
+	}
+
+	function thenReturns($returnValue) {
+		return $this->returns($returnValue);
 	}
 	
 	/**
@@ -232,7 +248,8 @@ class SS_Mocker_StubMethod_Arguments {
 	 */
 	function call() {
 		$this->callCount++;
-		return $this->return;
+		if(sizeof($this->return) > 1) { return array_shift($this->return); }
+		else return $this->return[0];
 	}
 	
 	/**
@@ -283,6 +300,13 @@ class SS_Mocker_StubMethod_Arguments {
 	function withArgs() {
 		$arguments = func_get_args();
 		return call_user_func_array(array($this->method,'withArgs'), $arguments);
+	}
+
+	/**
+	 * Set the arguments to no args
+	 */
+	function withNoArgs() {
+		return $this->method->withArgs();
 	}
 	
 	/**
