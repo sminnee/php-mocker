@@ -52,3 +52,10 @@ This short example says defines some return values for getPrimes() and getFiboac
 In order for the expectations to be triggered, checkExpectations() should be called.
  
 	$this->myMock->checkExpectations();
+	
+Development
+===========
+
+The mocking system can be tested with PHPUnit.  There is a Makefile to trigger tests:
+
+	make test

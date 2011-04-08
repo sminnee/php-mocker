@@ -182,6 +182,7 @@ class SS_Mocker_StubMethod {
 			if(class_exists('PHPUnit_Framework_AssertionFailedError')) $ex = 'PHPUnit_Framework_AssertionFailedError';
 			else $ex = 'Exception';
 			throw new $ex("A call to $this->methodName() was expected but was never made.");
+		}
 		return $this;
 	}
 
@@ -281,7 +282,7 @@ class SS_Mocker_StubMethod_Arguments {
 	 */
 	function withArgs() {
 		$arguments = func_get_args();
-		return call_user_func_array(array($method,'withArgs'), $arguments);
+		return call_user_func_array(array($this->method,'withArgs'), $arguments);
 	}
 	
 	/**
